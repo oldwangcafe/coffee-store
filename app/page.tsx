@@ -25,7 +25,7 @@ export default function Home() {
     <main className="min-h-screen bg-stone-50 text-stone-800 font-sans">
       <nav className="bg-stone-900 text-white p-4 sticky top-0 z-10 shadow-md">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <h1 className="text-xl font-bold tracking-wider">鄰居老王咖啡</h1>
+          <h1 className="text-xl font-bold tracking-wider">隔壁老王咖啡</h1>
           <div className="space-x-4 text-sm">
             <button className="hover:text-amber-400">所有商品</button>
             <button className="hover:text-amber-400">關於老王</button>
@@ -36,7 +36,7 @@ export default function Home() {
       <div className="max-w-6xl mx-auto p-6">
         <div className="my-12 text-center">
           <h2 className="text-3xl font-bold mb-4 text-stone-800">本月精選豆單</h2>
-          <p className="text-stone-500">自家烘焙 · 新鮮直送 · 極致風味</p>
+          <p className="text-stone-500">自家烘焙 · 專注新鮮 · 極致風味</p>
         </div>
 
         {/* 篩選器區塊 */}
