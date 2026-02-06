@@ -1,60 +1,35 @@
-'use client';
-
 import { PRODUCTS } from '../../data';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { use } from 'react';
-import {
-  Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer
-} from 'recharts';
+import FlavorRadarChart from './FlavorRadarChart';
+import { Metadata } from 'next';
 
-// --- 雷達圖元件 ---
-const FlavorRadar = ({ data }: { data: any }) => {
-  // ✅ 這裡就是關鍵的防呆機制！
-  // 如果資料還沒準備好，就顯示文字，這樣網頁才不會炸開
-  if (!data) {
-    return (
-      <div className="w-full h-[300px] flex items-center justify-center bg-stone-50 rounded-xl text-stone-400 text-sm">
-        此豆種尚無風味數據
-      </div>
-    );
+type Props = {
+  params: Promise<{ id: string }>
+}
+
+// 🔥 這是 Next.js 生成 SEO 標籤的神奇函式
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const product = PRODUCTS.find((p) => p.id === id);
+
+  if (!product) {
+    return { title: '找不到商品' };
   }
 
-  const chartData = [
-    { subject: '酸度', A: data.acidity, fullMark: 5 },
-    { subject: '甜度', A: data.sweetness, fullMark: 5 },
-    { subject: '苦度', A: data.bitterness, fullMark: 5 },
-    { subject: '厚度', A: data.body, fullMark: 5 },
-    { subject: '餘韻', A: data.aftertaste, fullMark: 5 },
-  ];
+  return {
+    title: `${product.name} | 隔壁老王咖啡`, // 瀏覽器標籤頁會顯示這個
+    description: product.description,
+    openGraph: {
+      title: product.name,
+      description: product.description,
+      images: [product.imageUrl], // 分享到 LINE/FB 時會顯示這張圖
+    },
+  };
+}
 
-  return (
-    <div className="w-full h-[300px] -ml-6">
-      <ResponsiveContainer width="100%" height="100%">
-        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={chartData}>
-          <PolarGrid stroke="#e5e5e5" />
-          <PolarAngleAxis 
-            dataKey="subject" 
-            tick={{ fill: '#78716c', fontSize: 14, fontWeight: 'bold' }} 
-          />
-          <Radar
-            name="Flavor"
-            dataKey="A"
-            stroke="#d97706"
-            strokeWidth={3}
-            fill="#d97706"
-            fillOpacity={0.4}
-          />
-        </RadarChart>
-      </ResponsiveContainer>
-    </div>
-  );
-};
-
-// --- 主頁面 ---
-export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
-  
+export default async function ProductPage({ params }: Props) {
+  const { id } = await params;
   const product = PRODUCTS.find((p) => p.id === id);
 
   if (!product) {
@@ -105,11 +80,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                ))}
             </div>
 
-            {/* 🔥 雷達圖放在這裡 🔥 */}
+            {/* 🔥 這裡改用我們拆出去的 Client Component */}
             <div className="mb-6 border-b border-stone-100 pb-6">
               <h3 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-2">風味分析</h3>
-              {/* 傳入 data 時，程式會自動檢查裡面有沒有東西 */}
-              <FlavorRadar data={product.flavorProfile} />
+              <FlavorRadarChart data={product.flavorProfile} />
             </div>
 
             <h3 className="text-lg font-bold text-stone-800 mb-2">杯測筆記</h3>
