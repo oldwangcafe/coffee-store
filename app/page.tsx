@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 
-// --- 1. 定義資料結構與假資料 ---
+// --- 1. 定義資料結構 (已修正：加入 imageUrl) ---
 type RoastLevel = '淺焙' | '中焙' | '中深焙' | '深焙';
 
 interface CoffeeProduct {
@@ -15,8 +15,10 @@ interface CoffeeProduct {
   price: number;
   flavorNotes: string[];
   description: string;
+  imageUrl: string; 
 }
 
+// --- 2. 假資料 (請確保每筆資料都有 imageUrl) ---
 const MOCK_PRODUCTS: CoffeeProduct[] = [
   {
     id: '1',
@@ -27,7 +29,8 @@ const MOCK_PRODUCTS: CoffeeProduct[] = [
     roastLevel: '淺焙',
     price: 450,
     flavorNotes: ['柑橘', '茉莉花', '蜂蜜'],
-    description: '經典的耶加雪菲風味，酸值明亮，口感乾淨。'
+    description: '經典的耶加雪菲風味，酸值明亮，口感乾淨。',
+    imageUrl: '/coffee-beans/yirgacheffe.jpg' // 確保這裡的路徑對應到你 public 資料夾內的檔案
   },
   {
     id: '2',
@@ -38,7 +41,8 @@ const MOCK_PRODUCTS: CoffeeProduct[] = [
     roastLevel: '中焙',
     price: 550,
     flavorNotes: ['草莓優格', '熱帶水果', '酒香'],
-    description: '強烈的特殊處理法風味，適合喜歡嚐鮮的你。'
+    description: '強烈的特殊處理法風味，適合喜歡嚐鮮的你。',
+    imageUrl: '/coffee-beans/colombia.jpg'
   },
   {
     id: '3',
@@ -49,21 +53,20 @@ const MOCK_PRODUCTS: CoffeeProduct[] = [
     roastLevel: '深焙',
     price: 400,
     flavorNotes: ['仙草', '黑巧克力', '奶油'],
-    description: '厚實醇厚，不酸的老饕首選。'
+    description: '厚實醇厚，不酸的老饕首選。',
+    imageUrl: '/coffee-beans/mandheling.jpg'
   }
 ];
 
-// --- 2. 主頁面元件 ---
+// --- 3. 主頁面元件 ---
 export default function Home() {
   const [selectedRoast, setSelectedRoast] = useState<RoastLevel | '全部'>('全部');
   const [selectedProcess, setSelectedProcess] = useState<string | '全部'>('全部');
 
-  // 自動抓取所有處理法用於下拉選單
   const allProcesses = useMemo(() => 
     ['全部', ...Array.from(new Set(MOCK_PRODUCTS.map(p => p.process)))], 
   []);
 
-  // 篩選邏輯
   const filteredProducts = MOCK_PRODUCTS.filter(product => {
     const matchRoast = selectedRoast === '全部' || product.roastLevel === selectedRoast;
     const matchProcess = selectedProcess === '全部' || product.process === selectedProcess;
@@ -72,10 +75,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-stone-50 text-stone-800 font-sans">
-      {/* 頂部導覽列 */}
       <nav className="bg-stone-900 text-white p-4 sticky top-0 z-10 shadow-md">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <h1 className="text-xl font-bold tracking-wider">鄰居老王咖啡</h1>
+          <h1 className="text-xl font-bold tracking-wider">隔壁老王咖啡</h1>
           <div className="space-x-4 text-sm">
             <button className="hover:text-amber-400">所有商品</button>
             <button className="hover:text-amber-400">關於老王</button>
@@ -84,17 +86,13 @@ export default function Home() {
       </nav>
 
       <div className="max-w-6xl mx-auto p-6">
-        
-        {/* Header */}
         <div className="my-12 text-center">
           <h2 className="text-3xl font-bold mb-4 text-stone-800">本月精選豆單</h2>
           <p className="text-stone-500">自家烘焙 · 新鮮直送 · 極致風味</p>
         </div>
 
-        {/* 篩選控制器 */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-stone-200 mb-8">
           <div className="flex flex-wrap gap-6 items-end">
-            {/* 焙度標籤 */}
             <div>
               <label className="block text-xs font-bold text-stone-400 uppercase tracking-wide mb-2">焙度篩選</label>
               <div className="flex flex-wrap gap-2">
@@ -113,8 +111,6 @@ export default function Home() {
                 ))}
               </div>
             </div>
-
-            {/* 處理法下拉 */}
             <div>
               <label className="block text-xs font-bold text-stone-400 uppercase tracking-wide mb-2">處理法</label>
               <select 
@@ -127,16 +123,18 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 商品列表 Grid */}
+        {/* 商品列表 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProducts.map(product => (
             <div key={product.id} className="group bg-white rounded-xl overflow-hidden border border-stone-100 hover:shadow-xl transition-all duration-300 flex flex-col">
-              {/* 圖片區塊 (暫用色塊代替) */}
+              
+              {/* --- 圖片區域 --- */}
               <div className="h-48 bg-stone-200 relative overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center text-stone-400">
-                  (商品圖片: {product.name})
-                </div>
-                {/* 焙度標籤 */}
+                <img 
+                  src={product.imageUrl} 
+                  alt={product.name} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
                 <div className="absolute top-3 left-3 bg-white/90 backdrop-blur px-2 py-1 rounded text-xs font-bold text-stone-800 shadow-sm">
                   {product.roastLevel}
                 </div>
@@ -153,7 +151,6 @@ export default function Home() {
                   {product.description}
                 </p>
                 
-                {/* 風味標籤 */}
                 <div className="flex flex-wrap gap-1 mb-4">
                   {product.flavorNotes.map(note => (
                     <span key={note} className="px-2 py-1 bg-stone-100 text-stone-600 text-xs rounded-md">
@@ -166,9 +163,16 @@ export default function Home() {
                   <span className="text-xl font-bold text-stone-900">
                     NT$ {product.price}
                   </span>
-                  <button className="px-4 py-2 bg-stone-800 text-white text-sm font-bold rounded-lg hover:bg-stone-700 transition-colors">
-                    選購
-                  </button>
+                  
+                  {/* 按鈕：直接跳轉到賣貨便 */}
+                  <a 
+                    href="https://myship.7-11.com.tw/" // 這裡之後換成你的賣場連結
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-stone-800 text-white text-sm font-bold rounded-lg hover:bg-stone-700 transition-colors"
+                  >
+                    購買
+                  </a>
                 </div>
               </div>
             </div>
