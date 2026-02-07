@@ -2,41 +2,93 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-// --- 修正點：因為 data.ts 就在同層，所以用 ./data ---
 import { PRODUCTS, RoastLevel } from './data'; 
 
 export default function Home() {
   const [selectedRoast, setSelectedRoast] = useState<RoastLevel | '全部'>('全部');
   const [selectedProcess, setSelectedProcess] = useState<string | '全部'>('全部');
 
-  // 從 PRODUCTS 取得處理法清單
   const allProcesses = useMemo(() => 
     ['全部', ...Array.from(new Set(PRODUCTS.map(p => p.process)))], 
   []);
 
-  // 篩選邏輯
   const filteredProducts = PRODUCTS.filter(product => {
     const matchRoast = selectedRoast === '全部' || product.roastLevel === selectedRoast;
     const matchProcess = selectedProcess === '全部' || product.process === selectedProcess;
     return matchRoast && matchProcess;
   });
 
+  // 點擊「立即選購」時滑動到商品區
+  const scrollToProducts = () => {
+    const productSection = document.getElementById('product-section');
+    productSection?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <main className="min-h-screen bg-stone-50 text-stone-800 font-sans">
-      <nav className="bg-stone-900 text-white p-4 sticky top-0 z-10 shadow-md">
+      {/* 導覽列 */}
+      <nav className="bg-stone-900 text-white p-4 sticky top-0 z-20 shadow-md">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <h1 className="text-xl font-bold tracking-wider">隔壁老王咖啡</h1>
           <div className="space-x-4 text-sm">
-            <button className="hover:text-amber-400">所有商品</button>
-            <button className="hover:text-amber-400">關於老王</button>
+            <button onClick={scrollToProducts} className="hover:text-amber-400 transition-colors">所有商品</button>
+            <button className="hover:text-amber-400 transition-colors">關於老王</button>
           </div>
         </div>
       </nav>
 
-      <div className="max-w-6xl mx-auto p-6">
+      {/* Hero Banner 區塊 */}
+<div className="relative h-[600px] flex items-center justify-center overflow-hidden">
+  
+  {/* 背景圖層：加入 animate-slow-zoom 動畫 */}
+  <div className="absolute inset-0 z-0 overflow-hidden">
+    <img 
+      src="/hero-bg.jpg" 
+      alt="隔壁老王職人手沖" 
+      className="w-full h-full object-cover opacity-70 scale-100 transition-transform duration-[20s]"
+      style={{
+        animation: 'slowZoom 20s ease-in-out infinite alternate'
+      }}
+    />
+    {/* 漸層遮罩，讓文字更好讀 */}
+    <div className="absolute inset-0 bg-gradient-to-b from-stone-900/60 via-stone-900/40 to-stone-50"></div>
+  </div>
+
+  {/* 注入 CSS 動畫語法 */}
+  <style jsx global>{`
+    @keyframes slowZoom {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.15); }
+    }
+  `}</style>
+
+  {/* 文字內容 */}
+  <div className="relative z-10 text-center px-4 mt-12">
+    <span className="inline-block text-amber-400 font-medium tracking-[0.3em] mb-4 text-sm md:text-base">
+      POUR-OVER & ROASTERY
+    </span>
+    <h2 className="text-white text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
+      隔壁老王咖啡
+    </h2>
+    <p className="text-stone-200 text-lg md:text-xl mb-10 max-w-2xl mx-auto font-light leading-relaxed">
+      專注精品手沖 · 匠心自家烘焙
+      <br/>
+      讓每一顆豆子，都訴說著產地的故事
+    </p>
+    <button 
+      onClick={scrollToProducts}
+      className="group relative inline-flex items-center gap-2 bg-transparent border-2 border-white text-white text-lg font-bold py-4 px-10 rounded-full overflow-hidden hover:text-stone-900 transition-colors duration-300"
+    >
+      <span className="relative z-10">探索今日豆單</span>
+      <div className="absolute inset-0 z-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+    </button>
+  </div>
+</div>
+
+      <div id="product-section" className="max-w-6xl mx-auto p-6 scroll-mt-20">
         <div className="my-12 text-center">
           <h2 className="text-3xl font-bold mb-4 text-stone-800">本月精選豆單</h2>
-          <p className="text-stone-500">自家烘焙 · 專注新鮮 · 極致風味</p>
+          <p className="text-stone-500">自家烘焙 · 新鮮直送 · 極致風味</p>
         </div>
 
         {/* 篩選器區塊 */}
