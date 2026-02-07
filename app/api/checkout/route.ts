@@ -5,7 +5,7 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     // 🔥 請再次確認這裡填的是剛剛那個「會成功」的正確網址
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzvg7VEZTz5BgnuxiXDnvUTAyP7x4z_hwcY1R-HjixIuSj-UF6sHP9zsxCgIGfqsGYG/exec'; 
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJXseADVhtpzthP6UTdzO9_zuj3kRFrLJN6ccQRP7CP2eph0_JNKSr2kC-RGNczVdd/exec'; 
 
     // 轉發資料給 Google Sheets
     const response = await fetch(GOOGLE_SCRIPT_URL, {
