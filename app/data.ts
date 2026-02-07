@@ -8,6 +8,7 @@ export interface CoffeeProduct {
   process: string;
   roastLevel: RoastLevel;
   price: number;
+  dripPrice: number;  // 🔥 新增：濾掛包(10入) 的價格
   flavorNotes: string[];
   description: string;
   imageUrl: string;
@@ -30,6 +31,7 @@ export const PRODUCTS: CoffeeProduct[] = [
     process: '水洗',
     roastLevel: '淺焙',
     price: 450,
+    dripPrice: 350, // 🔥 新增：濾掛包(10入) 的價格
     flavorNotes: ['柑橘', '茉莉花', '蜂蜜'],
     description: '經典的耶加雪菲風味，酸值明亮，口感乾淨。入口時可以感受到豐富的花香氣息，尾韻帶有蜂蜜的甜感。',
     imageUrl: '/coffee-beans/yirgacheffe.jpg',
@@ -50,6 +52,7 @@ export const PRODUCTS: CoffeeProduct[] = [
     process: '雙重厭氧',
     roastLevel: '中焙',
     price: 550,
+    dripPrice: 350, // 🔥 新增：濾掛包(10入) 的價格
     flavorNotes: ['草莓優格', '熱帶水果', '酒香'],
     description: '強烈的特殊處理法風味，適合喜歡嚐鮮的你。雙重厭氧發酵帶來了爆炸性的草莓與優格香氣。',
     imageUrl: '/coffee-beans/colombia.jpg',
@@ -70,6 +73,7 @@ export const PRODUCTS: CoffeeProduct[] = [
     process: '濕剝法',
     roastLevel: '深焙',
     price: 400,
+    dripPrice: 350, // 🔥 新增：濾掛包(10入) 的價格
     flavorNotes: ['仙草', '黑巧克力', '奶油'],
     description: '厚實醇厚，不酸的老饕首選。經過三次手選的黃金曼特寧，口感乾淨且帶有濃郁的藥草與巧克力尾韻。',
     imageUrl: '/coffee-beans/mandheling.jpg',

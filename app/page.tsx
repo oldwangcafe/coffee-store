@@ -18,7 +18,6 @@ export default function Home() {
     return matchRoast && matchProcess;
   });
 
-  // 點擊「立即選購」時滑動到商品區
   const scrollToProducts = () => {
     const productSection = document.getElementById('product-section');
     productSection?.scrollIntoView({ behavior: 'smooth' });
@@ -26,64 +25,51 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-stone-50 text-stone-800 font-sans">
-      {/* 導覽列 */}
-      <nav className="bg-stone-900 text-white p-4 sticky top-0 z-20 shadow-md">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <h1 className="text-xl font-bold tracking-wider">隔壁老王咖啡</h1>
-          <div className="space-x-4 text-sm">
-            <button onClick={scrollToProducts} className="hover:text-amber-400 transition-colors">所有商品</button>
-            <button className="hover:text-amber-400 transition-colors">關於老王</button>
-          </div>
+      {/* Hero Banner (職人形象區) */}
+      <div className="relative h-[600px] flex items-center justify-center overflow-hidden">
+        {/* 背景圖與動畫 */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <img 
+            src="/hero-bg.jpg" 
+            alt="隔壁老王職人手沖" 
+            className="w-full h-full object-cover opacity-70 scale-100 transition-transform duration-[20s]"
+            style={{
+              animation: 'slowZoom 20s ease-in-out infinite alternate'
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-stone-900/60 via-stone-900/40 to-stone-50"></div>
         </div>
-      </nav>
 
-      {/* Hero Banner 區塊 */}
-<div className="relative h-[600px] flex items-center justify-center overflow-hidden">
-  
-  {/* 背景圖層：加入 animate-slow-zoom 動畫 */}
-  <div className="absolute inset-0 z-0 overflow-hidden">
-    <img 
-      src="/hero-bg.jpg" 
-      alt="隔壁老王職人手沖" 
-      className="w-full h-full object-cover opacity-70 scale-100 transition-transform duration-[20s]"
-      style={{
-        animation: 'slowZoom 20s ease-in-out infinite alternate'
-      }}
-    />
-    {/* 漸層遮罩，讓文字更好讀 */}
-    <div className="absolute inset-0 bg-gradient-to-b from-stone-900/60 via-stone-900/40 to-stone-50"></div>
-  </div>
+        {/* CSS 動畫定義 */}
+        <style jsx global>{`
+          @keyframes slowZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.15); }
+          }
+        `}</style>
 
-  {/* 注入 CSS 動畫語法 */}
-  <style jsx global>{`
-    @keyframes slowZoom {
-      0% { transform: scale(1); }
-      100% { transform: scale(1.15); }
-    }
-  `}</style>
-
-  {/* 文字內容 */}
-  <div className="relative z-10 text-center px-4 mt-12">
-    <span className="inline-block text-amber-400 font-medium tracking-[0.3em] mb-4 text-sm md:text-base">
-      POUR-OVER & ROASTERY
-    </span>
-    <h2 className="text-white text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
-      隔壁老王咖啡
-    </h2>
-    <p className="text-stone-200 text-lg md:text-xl mb-10 max-w-2xl mx-auto font-light leading-relaxed">
-      專注精品手沖 · 匠心自家烘焙
-      <br/>
-      讓每一顆豆子，都訴說著產地的故事
-    </p>
-    <button 
-      onClick={scrollToProducts}
-      className="group relative inline-flex items-center gap-2 bg-transparent border-2 border-white text-white text-lg font-bold py-4 px-10 rounded-full overflow-hidden hover:text-stone-900 transition-colors duration-300"
-    >
-      <span className="relative z-10">探索今日豆單</span>
-      <div className="absolute inset-0 z-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-    </button>
-  </div>
-</div>
+        {/* Banner 文字內容 */}
+        <div className="relative z-10 text-center px-4 mt-12">
+          <span className="inline-block text-amber-400 font-medium tracking-[0.3em] mb-4 text-sm md:text-base">
+            PRECISION ROASTING LAB
+          </span>
+          <h2 className="text-white text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
+            隔壁老王咖啡
+          </h2>
+          <p className="text-stone-200 text-lg md:text-xl mb-10 max-w-2xl mx-auto font-light leading-relaxed">
+            用 20 年程式邏輯開發，控溫每一條烘焙曲線
+            <br/>
+            讓每一杯咖啡，都如同程式碼般精確且純粹
+          </p>
+          <button 
+            onClick={scrollToProducts}
+            className="group relative inline-flex items-center gap-2 bg-transparent border-2 border-white text-white text-lg font-bold py-4 px-10 rounded-full overflow-hidden hover:text-stone-900 transition-colors duration-300"
+          >
+            <span className="relative z-10">探索今日豆單</span>
+            <div className="absolute inset-0 z-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+          </button>
+        </div>
+      </div>
 
       <div id="product-section" className="max-w-6xl mx-auto p-6 scroll-mt-20">
         <div className="my-12 text-center">
@@ -161,14 +147,20 @@ export default function Home() {
                     ))}
                   </div>
 
+                  {/* 價格與按鈕 */}
                   <div className="flex items-center justify-between mt-auto pt-4 border-t border-stone-100">
-                    <span className="text-xl font-bold text-stone-900">
-                      NT$ {product.price}
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-xs text-stone-400">200g / 濾掛</span>
+                      <span className="text-xl font-bold text-stone-900">
+                        NT$ {product.price} <span className="text-sm font-normal text-stone-500">起</span>
+                      </span>
+                    </div>
+                    
                     <span className="px-4 py-2 bg-stone-800 text-white text-sm font-bold rounded-lg group-hover:bg-stone-700 transition-colors">
                       查看詳情
                     </span>
                   </div>
+
                 </div>
               </div>
             </Link>
