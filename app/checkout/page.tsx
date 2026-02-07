@@ -4,7 +4,6 @@ import { useState, useEffect, Suspense } from 'react';
 import { useCart } from '../context/CartContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-// 🔥 1. 把原本的所有邏輯，搬到這個 "CheckoutContent" 子組件裡面
 function CheckoutContent() {
   const { items, subtotal, shippingFee, totalAmount, clearCart } = useCart();
   const router = useRouter();
@@ -20,17 +19,36 @@ function CheckoutContent() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 1. 購物車檢查
   useEffect(() => {
     if (items.length === 0) {
       router.push('/cart');
     }
   }, [items, router]);
 
+  // 🔥 2. 關鍵修正：頁面載入時，同時還原「備份資料」與讀取「7-11 回傳資料」
   useEffect(() => {
+    // A. 先試著讀取之前的備份
+    const savedData = localStorage.getItem('checkout_backup');
+    let initialData = savedData ? JSON.parse(savedData) : null;
+
+    // B. 讀取網址上的門市資料 (7-11 傳回來的)
     const returnStoreId = searchParams.get('storeId');
     const returnStoreName = searchParams.get('storeName');
 
-    if (returnStoreName) {
+    if (initialData) {
+      // 如果有備份，就用備份當基底
+      setFormData(prev => {
+        const newData = { ...prev, ...initialData };
+        // 如果網址有新店名，就覆蓋掉備份裡的舊店名
+        if (returnStoreName) {
+          newData.storeId = returnStoreId || '';
+          newData.storeName = returnStoreName || '';
+        }
+        return newData;
+      });
+    } else if (returnStoreName) {
+      // 如果沒備份但有店名 (極少見，防呆用)，直接填店名
       setFormData(prev => ({
         ...prev,
         storeId: returnStoreId || '',
@@ -63,6 +81,10 @@ function CheckoutContent() {
       const result = await response.json();
       if (response.ok && result.success) {
         alert('🎉 訂單已成功送出！老王會盡快與您聯繫確認！');
+        
+        // 🔥 成功送單後，記得清空備份，以免影響下一張單
+        localStorage.removeItem('checkout_backup');
+        
         clearCart();
         router.push('/');
       } else {
@@ -77,9 +99,13 @@ function CheckoutContent() {
   };
 
   const handleSelectStore = () => {
+    // 🔥 關鍵修正：跳轉前，先把目前填到一半的資料存起來！
+    localStorage.setItem('checkout_backup', JSON.stringify(formData));
+
     const currentOrigin = window.location.origin; 
     const callbackUrl = `${currentOrigin}/api/store-callback`;
     const sevenElevenUrl = `https://emap.presco.com.tw/c2cemap.ashx?eshopid=870&showtype=1&tempvar=&url=${encodeURIComponent(callbackUrl)}`;
+    
     window.location.href = sevenElevenUrl;
   };
 
@@ -248,9 +274,6 @@ function CheckoutContent() {
   );
 }
 
-// 🔥 2. 這才是真正的 Page 組件 (外層)
-// 它的唯一任務就是提供 "Suspense" 邊界
-// 當 searchParams 還沒準備好時，顯示 "載入中..."
 export default function CheckoutPage() {
   return (
     <Suspense fallback={
