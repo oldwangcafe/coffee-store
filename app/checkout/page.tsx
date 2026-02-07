@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useCart } from '../context/CartContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function CheckoutPage() {
+// 🔥 1. 把原本的所有邏輯，搬到這個 "CheckoutContent" 子組件裡面
+function CheckoutContent() {
   const { items, subtotal, shippingFee, totalAmount, clearCart } = useCart();
   const router = useRouter();
-  const searchParams = useSearchParams(); // 🔥 新增：用來抓網址上的參數
+  const searchParams = useSearchParams(); 
   
   const [formData, setFormData] = useState({
     name: '',
@@ -19,14 +20,12 @@ export default function CheckoutPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 1. 防呆：購物車沒東西踢回首頁
   useEffect(() => {
     if (items.length === 0) {
       router.push('/cart');
     }
   }, [items, router]);
 
-  // 🔥 2. 自動填入：如果網址有帶門市資料 (從 7-11 跳回來)，就自動填入
   useEffect(() => {
     const returnStoreId = searchParams.get('storeId');
     const returnStoreName = searchParams.get('storeName');
@@ -77,19 +76,10 @@ export default function CheckoutPage() {
     }
   };
 
-  // 🔥 3. 產生 7-11 地圖按鈕的連結
   const handleSelectStore = () => {
-    // 這裡我們需要你網站的「正式網址」
-    // 在 localhost 開發時，這個功能無法完整運作，必須部署後才行
-    // 我們先用 window.location.origin 抓目前的網址
     const currentOrigin = window.location.origin; 
     const callbackUrl = `${currentOrigin}/api/store-callback`;
-    
-    // 7-11 電子地圖參數
-    // eshopid: 這是廠商代號，個人賣家通常用 '870' (C2C交貨便通用) 或測試號
-    // url: 這是回傳網址，7-11 選完店會把資料 POST 到這裡
     const sevenElevenUrl = `https://emap.presco.com.tw/c2cemap.ashx?eshopid=870&showtype=1&tempvar=&url=${encodeURIComponent(callbackUrl)}`;
-    
     window.location.href = sevenElevenUrl;
   };
 
@@ -143,7 +133,6 @@ export default function CheckoutPage() {
                   7-11 門市資訊
                 </h3>
                 
-                {/* 🏪 7-11 按鈕區塊 */}
                 <div className="bg-amber-50 p-4 rounded-lg mb-4 border border-amber-100">
                   <p className="text-sm text-amber-800 mb-3 font-bold">
                     💡 點擊下方按鈕選擇門市：
@@ -168,7 +157,7 @@ export default function CheckoutPage() {
                       type="text" 
                       name="storeName"
                       required
-                      readOnly // 設定為唯讀，避免手滑改錯，或是讓使用者知道要用選的
+                      readOnly
                       value={formData.storeName}
                       placeholder="請點擊上方按鈕選擇"
                       className="w-full p-3 border border-stone-300 rounded-lg bg-stone-100 text-stone-900 cursor-not-allowed"
@@ -201,7 +190,7 @@ export default function CheckoutPage() {
             </form>
           </div>
 
-          {/* 右側：訂單確認 (保持不變) */}
+          {/* 右側：訂單確認 */}
           <div>
             <div className="bg-stone-900 text-white p-6 rounded-2xl shadow-lg sticky top-24">
               <h2 className="text-xl font-bold mb-6">訂單內容確認</h2>
@@ -256,5 +245,22 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// 🔥 2. 這才是真正的 Page 組件 (外層)
+// 它的唯一任務就是提供 "Suspense" 邊界
+// 當 searchParams 還沒準備好時，顯示 "載入中..."
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-stone-50">
+        <div className="text-stone-500 font-bold text-lg animate-pulse">
+          正在準備結帳櫃檯...
+        </div>
+      </div>
+    }>
+      <CheckoutContent />
+    </Suspense>
   );
 }
