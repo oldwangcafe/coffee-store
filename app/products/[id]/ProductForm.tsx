@@ -2,135 +2,200 @@
 
 import { useState } from 'react';
 import { useCart } from '../../context/CartContext';
-import { CoffeeProduct } from '../../data';
 
-export default function ProductForm({ product }: { product: CoffeeProduct }) {
+interface ProductOption {
+  variant: string;
+  price: number;
+}
+
+interface Product {
+  id: string | number;
+  name: string;
+  price: number;
+  image: string;
+  options?: ProductOption[];
+}
+
+const GRIND_OPTIONS = [
+  "細研磨 (義式濃縮)",
+  "中細研磨 (摩卡壺)",
+  "中研磨 (手沖/美式)",
+  "中粗研磨 (聰明濾杯)",
+  "粗研磨 (法式濾壓)"
+];
+
+export default function ProductForm({ product }: { product: Product }) {
   const { addToCart } = useCart();
   
-  // 🛒 狀態管理：記錄客人的選擇
-  const [variant, setVariant] = useState<'200g' | '濾掛(10入)'>('200g');
+  // 1. 規格選擇 (預設第一個)
+  const [selectedOption, setSelectedOption] = useState<ProductOption>(
+    product.options && product.options.length > 0 
+      ? product.options[0] 
+      : { variant: '標準包裝', price: product.price }
+  );
+
+  // 2. 型態選擇
   const [form, setForm] = useState<'咖啡豆' | '咖啡粉'>('咖啡豆');
-  const [grind, setGrind] = useState<'手沖' | '美式' | '義式'>('手沖');
+
+  // 3. 研磨度選擇
+  const [grind, setGrind] = useState('中研磨 (手沖/美式)');
+
+  // 4. 數量選擇 (新增功能)
   const [quantity, setQuantity] = useState(1);
 
-  // 💰 價格邏輯 (如果濾掛包比較貴，可以在這裡加錢，目前設為同價)
-  const currentPrice = variant === '濾掛(10入)' ? product.dripPrice : product.price;
+  // 判斷是否為濾掛
+  const isDripBag = selectedOption.variant.includes('濾掛') || selectedOption.variant.includes('掛耳');
 
   const handleAddToCart = () => {
     addToCart({
-      productId: product.id,
+      id: product.id,
       name: product.name,
-      price: currentPrice,
-      quantity: quantity,
-      imageUrl: product.imageUrl,
-      variant,
-      // 只有選 200g 才需要紀錄是豆還是粉
-      form: variant === '200g' ? form : undefined,
-      // 只有選 粉 才需要紀錄粗細
-      grind: (variant === '200g' && form === '咖啡粉') ? grind : undefined,
+      price: selectedOption.price,
+      image: product.image,
+      quantity: quantity, // 使用客人選擇的數量
+      variant: selectedOption.variant,
+      form: isDripBag ? '無' : form,
+      grind: isDripBag || form === '咖啡豆' ? undefined : grind
     });
-    
-    // 簡單的成功提示 (之後可以改成漂亮的 Toast)
-    alert(`已將 ${quantity} 件 ${product.name} 加入購物車！`);
+
+    const btn = document.getElementById('add-btn');
+    if(btn) {
+       const originalText = btn.innerText;
+       btn.innerText = "已加入購物車！";
+       setTimeout(() => btn.innerText = originalText, 1000);
+    }
   };
 
   return (
-    <div className="bg-stone-50 p-6 rounded-xl mb-8 border border-stone-200">
+    <div className="mt-6 space-y-6">
       
-      {/* 1. 選擇規格 (200g vs 濾掛) */}
-      <div className="mb-5">
-        <span className="block text-sm font-bold text-stone-500 mb-2 uppercase tracking-wide">選擇規格</span>
-        <div className="flex gap-3">
-          {['200g', '濾掛(10入)'].map((v) => (
-            <button
-              key={v}
-              onClick={() => setVariant(v as any)}
-              className={`flex-1 py-3 px-4 rounded-lg text-sm font-bold border transition-all ${
-                variant === v 
-                  ? 'bg-stone-800 text-white border-stone-800 shadow-md' 
-                  : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400'
-              }`}
-            >
-              {v}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 2. 只有選 200g 時：顯示「豆/粉」選項 */}
-      {variant === '200g' && (
-        <div className="mb-5 animate-fadeIn">
-          <span className="block text-sm font-bold text-stone-500 mb-2 uppercase tracking-wide">型態</span>
-          <div className="flex gap-3">
-            {['咖啡豆', '咖啡粉'].map((f) => (
+      {/* 1. 選擇規格 (按鈕列) */}
+      {product.options && product.options.length > 1 && (
+        <div>
+          <p className="text-sm font-bold text-stone-600 mb-2">選擇規格</p>
+          <div className="flex flex-wrap gap-3">
+            {product.options.map((opt, idx) => (
               <button
-                key={f}
-                onClick={() => setForm(f as any)}
-                className={`flex-1 py-3 px-4 rounded-lg text-sm font-bold border transition-all ${
-                  form === f 
-                    ? 'bg-stone-600 text-white border-stone-600' 
-                    : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400'
+                key={idx}
+                onClick={() => setSelectedOption(opt)}
+                className={`px-6 py-3 text-sm font-bold rounded-lg border transition-all ${
+                  selectedOption.variant === opt.variant
+                    ? 'bg-stone-800 text-white border-stone-800 shadow-md' // 選中：深黑底白字
+                    : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400' // 未選：白底
                 }`}
               >
-                {f}
+                {opt.variant}
               </button>
             ))}
           </div>
         </div>
       )}
 
-      {/* 3. 只有選 咖啡粉 時：顯示「研磨粗細」下拉選單 */}
-      {variant === '200g' && form === '咖啡粉' && (
-        <div className="mb-5 animate-fadeIn">
-          <label className="block text-sm font-bold text-stone-500 mb-2 uppercase tracking-wide">研磨粗細</label>
-          <div className="relative">
-            <select 
-              value={grind}
-              onChange={(e) => setGrind(e.target.value as any)}
-              className="w-full p-3 rounded-lg border border-stone-300 bg-white text-stone-700 appearance-none focus:ring-2 focus:ring-stone-500 outline-none"
+      {/* 2. 選擇型態 (按鈕列 - 只有非濾掛顯示) */}
+      {!isDripBag && (
+        <div className="animate-fade-in">
+          <p className="text-sm font-bold text-stone-600 mb-2">型態</p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setForm('咖啡豆')}
+              className={`flex-1 py-3 text-sm font-bold rounded-lg border transition-all ${
+                form === '咖啡豆'
+                  ? 'bg-stone-800 text-white border-stone-800 shadow-md'
+                  : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400'
+              }`}
             >
-              <option value="手沖">手沖 (中研磨)</option>
-              <option value="美式">美式咖啡機 (中細研磨)</option>
-              <option value="義式">義式機 (細研磨)</option>
-            </select>
-            <div className="absolute right-3 top-3.5 pointer-events-none text-stone-500">▼</div>
+              咖啡豆
+            </button>
+            <button
+              onClick={() => setForm('咖啡粉')}
+              className={`flex-1 py-3 text-sm font-bold rounded-lg border transition-all ${
+                form === '咖啡粉'
+                  ? 'bg-stone-800 text-white border-stone-800 shadow-md'
+                  : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400'
+              }`}
+            >
+              咖啡粉 (需研磨)
+            </button>
           </div>
         </div>
       )}
 
-      {/* 4. 數量與總價 */}
-      <div className="flex items-center justify-between mt-8 pt-6 border-t border-stone-200">
-        <div className="flex items-center border border-stone-300 rounded-lg bg-white overflow-hidden">
-          <button 
-            onClick={() => setQuantity(Math.max(1, quantity - 1))} 
-            className="px-4 py-2 hover:bg-stone-100 active:bg-stone-200 transition-colors"
-          >-</button>
-          <span className="px-4 py-2 font-bold text-stone-800 min-w-[3rem] text-center">{quantity}</span>
-          <button 
-            onClick={() => setQuantity(quantity + 1)} 
-            className="px-4 py-2 hover:bg-stone-100 active:bg-stone-200 transition-colors"
-          >+</button>
+      {/* 3. 研磨組細 (下拉選單 - 只有選咖啡粉顯示) */}
+      {!isDripBag && form === '咖啡粉' && (
+        <div className="animate-fade-in">
+          <p className="text-sm font-bold text-stone-600 mb-2">研磨組細</p>
+          <div className="relative">
+            <select
+              value={grind}
+              onChange={(e) => setGrind(e.target.value)}
+              className="w-full p-4 border border-stone-300 rounded-lg text-stone-900 font-bold bg-white focus:ring-2 focus:ring-stone-500 outline-none appearance-none cursor-pointer text-base"
+              style={{ color: '#1c1917' }} // 強制深黑色字體
+            >
+              {GRIND_OPTIONS.map((opt) => (
+                <option key={opt} value={opt} className="text-stone-900 font-medium">
+                  {opt}
+                </option>
+              ))}
+            </select>
+            {/* 自訂箭頭 icon，讓它看起來更有質感 */}
+            <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-stone-500">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
         </div>
+      )}
+
+      {/* 4. 數量與價格區塊 */}
+      <div className="flex items-center justify-between pt-4 border-t border-stone-100 mt-6">
+        {/* 數量選擇器 */}
+        <div className="flex items-center border border-stone-300 rounded-lg h-12">
+          <button 
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            className="px-4 h-full text-stone-500 hover:bg-stone-100 hover:text-stone-800 transition-colors"
+          >
+            -
+          </button>
+          <input 
+            type="text" 
+            readOnly 
+            value={quantity} 
+            className="w-12 h-full text-center text-stone-900 font-bold outline-none border-x border-stone-300"
+          />
+          <button 
+            onClick={() => setQuantity(quantity + 1)}
+            className="px-4 h-full text-stone-500 hover:bg-stone-100 hover:text-stone-800 transition-colors"
+          >
+            +
+          </button>
+        </div>
+
+        {/* 總價顯示 */}
         <div className="text-right">
           <p className="text-xs text-stone-400 mb-1">小計</p>
-          <p className="text-2xl font-bold text-amber-700">NT$ {currentPrice * quantity}</p>
+          <p className="text-3xl font-extrabold text-amber-700 font-mono">
+            NT$ {selectedOption.price * quantity}
+          </p>
         </div>
       </div>
 
       {/* 5. 加入購物車按鈕 */}
-      <button 
-        onClick={handleAddToCart}
-        className="w-full mt-6 bg-stone-900 text-white font-bold py-4 rounded-xl hover:bg-stone-700 transition-all transform active:scale-[0.98] shadow-lg flex items-center justify-center gap-2"
-      >
-        <span>加入購物車</span>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
-        </svg>
-      </button>
-      
-      <p className="text-center text-xs text-stone-400 mt-4">
-        * 滿 $1000 免運費，未滿運費 $60
-      </p>
+      <div>
+        <button
+          id="add-btn"
+          onClick={handleAddToCart}
+          className="w-full bg-stone-900 text-white text-lg font-bold py-4 rounded-xl hover:bg-stone-800 transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          加入購物車
+        </button>
+        <p className="text-center text-xs text-stone-400 mt-3">
+          * 滿 $1000 免運費，未滿運費 $60
+        </p>
+      </div>
     </div>
   );
 }
