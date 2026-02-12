@@ -28,7 +28,8 @@ export async function generateMetadata(
       // ✅ [新寫法] 改連我們自己的 API (後端代理)
       // 這樣由伺服器幫你去跟 Google 拿菜單，瀏覽器就不會報錯了
       const res = await fetch('/api/checkout?action=getProducts', { cache: 'no-store' });
-    const product = Array.isArray(data) 
+      const product = Array.isArray(data) 
+      const data = await res.json();
       ? data.find((p: any) => p.id == id) 
       : null;
 
