@@ -13,7 +13,6 @@ export default function OrderTrackingPage() {
     setError('');
     setOrders([]);
 
-    // 1. 手機格式檢核：09 開頭且共 10 碼
     const phoneRegex = /^09\d{8}$/;
     if (!phoneRegex.test(phone)) {
       setError('⚠️ 格式錯誤：請輸入 10 碼手機號碼，並以 09 開頭');
@@ -23,7 +22,6 @@ export default function OrderTrackingPage() {
     setLoading(true);
 
     try {
-      // 2. 透過後端代理呼叫 GAS，從 Excel J 欄讀取物流編號
       const res = await fetch(`/api/checkout?action=checkOrder&phone=${phone}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -51,12 +49,12 @@ export default function OrderTrackingPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 pb-20">
-      {/* 頁首設計 */}
+      {/* 頁首 */}
       <div className="bg-white px-4 py-10 border-b border-stone-200 mb-8 shadow-sm">
         <h1 className="text-3xl font-black text-stone-800 text-center flex items-center justify-center gap-3">
           <span className="text-4xl">🔍</span> 訂單進度查詢
         </h1>
-        <p className="text-center text-stone-400 mt-2 font-medium">輸入手機號碼，掌握老王烘豆進度</p>
+        <p className="text-center text-stone-400 mt-2 font-medium font-sans">輸入手機號碼，掌握老王烘豆進度</p>
       </div>
 
       <div className="max-w-md mx-auto px-4">
@@ -65,7 +63,7 @@ export default function OrderTrackingPage() {
           <form onSubmit={handleCheck} className="space-y-5">
             <div>
               <label className="block text-xs font-black text-stone-400 mb-2 ml-1 uppercase tracking-widest">
-                Registered Phone
+                訂購手機號碼
               </label>
               <input
                 type="tel"
@@ -96,21 +94,21 @@ export default function OrderTrackingPage() {
         {/* 訂單列表 */}
         <div className="space-y-8">
           {orders.map((order, index) => (
-            <div key={index} className="bg-white rounded-[2.5rem] shadow-2xl shadow-stone-200 overflow-hidden border border-stone-100 animate-fade-in-up">
+            <div key={index} className="bg-white rounded-[2.5rem] shadow-2xl shadow-stone-200 overflow-hidden border border-stone-100">
               
               {/* 卡片頂部 */}
               <div className="p-7 bg-stone-900 text-white">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <span className="text-[10px] font-bold opacity-50 uppercase tracking-[0.2em]">Current Status</span>
+                    <span className="text-[10px] font-bold opacity-50 uppercase tracking-[0.2em]">目前狀態</span>
                     <p className={`text-2xl font-black mt-1 ${
-                      order.status.includes('出貨') ? 'text-green-400' : 'text-amber-400'
+                      order.status.includes('出貨') || order.status.includes('送達') ? 'text-green-400' : 'text-amber-400'
                     }`}>
                       {order.status}
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] font-bold opacity-50 uppercase tracking-[0.2em]">Order ID</span>
+                    <span className="text-[10px] font-bold opacity-50 uppercase tracking-[0.2em]">訂單編號</span>
                     <p className="text-xs font-mono font-bold mt-1 text-stone-300">{order.orderId}</p>
                   </div>
                 </div>
@@ -119,7 +117,7 @@ export default function OrderTrackingPage() {
               {/* 卡片內容區 */}
               <div className="p-7 space-y-6">
                 
-                {/* 🚚 物流區塊：修正為 7-11 E-Tracking 正式網址與參數 */}
+                {/* 🚚 物流區塊 */}
                 {order.trackingNumber && (
                   <div className="bg-green-50 border-2 border-green-100 p-6 rounded-[2rem]">
                     <div className="flex justify-between items-center mb-4">
@@ -136,13 +134,12 @@ export default function OrderTrackingPage() {
 
                     <div className="space-y-4">
                       <div>
-                        <p className="text-[10px] text-green-700 font-bold opacity-60 mb-1 uppercase">Tracking Number (J 欄)</p>
+                        <p className="text-[10px] text-green-700 font-bold opacity-60 mb-1 uppercase">物流查詢代碼 (J 欄)</p>
                         <p className="text-3xl font-mono font-black text-stone-800 tracking-tighter">
                           {order.trackingNumber}
                         </p>
                       </div>
                       
-                      {/* 🔥 根據您的要求修正連結與參數 (FLAG=12 & returnuri) */}
                       <a 
                         href={`https://eservice.7-11.com.tw/E-Tracking/search.aspx?CRM_PaymentNo=${order.trackingNumber}&FLAG=12&FROM=C2CPlatform&returnuri=https://myship.7-11.com.tw/seller/order/All`}
                         target="_blank"
@@ -161,18 +158,18 @@ export default function OrderTrackingPage() {
                 {/* 訂單基本資訊 */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-stone-50 p-4 rounded-2xl">
-                    <span className="text-[10px] text-stone-400 font-bold uppercase block mb-1">Order Date</span>
+                    <span className="text-[10px] text-stone-400 font-bold uppercase block mb-1">訂購日期</span>
                     <span className="text-stone-800 font-black">{order.date}</span>
                   </div>
                   <div className="bg-stone-50 p-4 rounded-2xl text-right">
-                    <span className="text-[10px] text-stone-400 font-bold uppercase block mb-1">Total Amount</span>
+                    <span className="text-[10px] text-stone-400 font-bold uppercase block mb-1">總金額</span>
                     <span className="text-stone-900 font-black text-xl">NT$ {order.total}</span>
                   </div>
                 </div>
 
                 {/* 購買品項 */}
                 <div className="pt-2">
-                  <span className="text-[10px] text-stone-400 font-bold block mb-3 uppercase tracking-widest ml-1">Items Summary</span>
+                  <span className="text-[10px] text-stone-400 font-bold block mb-3 uppercase tracking-widest ml-1">訂購品項摘要</span>
                   <div className="bg-stone-50 p-5 rounded-2xl border border-stone-100">
                     <pre className="text-sm text-stone-700 whitespace-pre-wrap font-sans leading-relaxed font-medium">
                       {order.items}
@@ -181,17 +178,16 @@ export default function OrderTrackingPage() {
                 </div>
               </div>
               
-              {/* 卡片底部點綴 */}
+              {/* 卡片底部 */}
               <div className="p-4 bg-stone-50 text-center">
-                <p className="text-[10px] text-stone-300 font-bold italic tracking-widest">Neighbor Old Wang Coffee Roaster</p>
+                <p className="text-[10px] text-stone-300 font-bold italic tracking-widest">隔壁老王咖啡烘焙所 Neighbor Old Wang Coffee</p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* 底部導引 */}
         <div className="mt-12 text-center pb-10">
-          <p className="text-stone-400 text-sm font-bold">如有疑問，請直接私訊老王</p>
+          <p className="text-stone-400 text-sm font-bold font-sans">如有疑問，請直接私訊老王</p>
         </div>
       </div>
     </div>
