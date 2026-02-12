@@ -33,8 +33,12 @@ export default function Home() {
       try {
         const GOOGLE_SCRIPT_URL = process.env.NEXT_PUBLIC_GAS_URL;
         
-        const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getProducts`, { cache: 'no-store' });
-        const data = await res.json();
+        //const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getProducts`, { cache: 'no-store' });
+        //const data = await res.json();
+        // 這樣由伺服器幫你去跟 Google 拿菜單，瀏覽器就不會報錯了
+       const res = await fetch('/api/checkout?action=getProducts', { cache: 'no-store' });
+       
+       const data = await res.json();
         
         if (Array.isArray(data)) {
           const mappedProducts: Product[] = data.map((item: any) => ({

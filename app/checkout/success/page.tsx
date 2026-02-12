@@ -28,6 +28,14 @@ function SuccessContent() {
           <p className="text-xs text-stone-400 mt-2">請截圖保存，方便日後查詢。</p>
         </div>
 
+        {/* 🔥🔥🔥 這裡就是您要加的提示文字 🔥🔥🔥 */}
+          <div className="flex items-start gap-2">
+            <span className="text-amber-500 mt-0.5">💡</span>
+            <p className="text-sm font-bold text-stone-600 leading-relaxed">
+              您隨時可以到 <span className="text-amber-600 underline decoration-2 underline-offset-2">「查訂單」</span> 頁面，輸入<span className="text-stone-900">手機號碼</span>來查詢最新進度喔！
+            </p>
+          </div>
+          
         {/* 按鈕區 */}
         <div className="space-y-3">
           <Link 

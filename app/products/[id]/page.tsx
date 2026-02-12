@@ -21,9 +21,13 @@ export async function generateMetadata(
   
   try {
     // 這裡去抓資料只是為了給 Google 爬蟲看 Title
-    const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getProducts`, { cache: 'no-store' });
-    const data = await res.json();
-    
+    //const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getProducts`, { cache: 'no-store' });
+    //const data = await res.json();
+    // ❌ [移除舊寫法] 不要直接讀環境變數連 Google，會被擋
+  
+      // ✅ [新寫法] 改連我們自己的 API (後端代理)
+      // 這樣由伺服器幫你去跟 Google 拿菜單，瀏覽器就不會報錯了
+      const res = await fetch('/api/checkout?action=getProducts', { cache: 'no-store' });
     const product = Array.isArray(data) 
       ? data.find((p: any) => p.id == id) 
       : null;

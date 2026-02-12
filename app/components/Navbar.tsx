@@ -21,7 +21,7 @@ export default function Navbar() {
           {/* Logo 區 */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-stone-900 font-bold text-xl group-hover:bg-amber-500 transition-colors">
-              王
+              咖
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-bold text-white tracking-wider group-hover:text-amber-500 transition-colors">
@@ -45,6 +45,10 @@ export default function Navbar() {
                 {totalItems}
               </span>
             )}
+          </Link>
+
+          <Link href="/order-tracking" className="text-stone-600 hover:text-amber-600 font-bold transition-colors">
+              查訂單
           </Link>
 
         </div>
