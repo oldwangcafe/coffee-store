@@ -20,18 +20,18 @@ export async function generateMetadata(
   const GOOGLE_SCRIPT_URL = process.env.NEXT_PUBLIC_GAS_URL || '';
   
   try {
-    // 這裡去抓資料只是為了給 Google 爬蟲看 Title
-    //const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getProducts`, { cache: 'no-store' });
-    //const data = await res.json();
-    // ❌ [移除舊寫法] 不要直接讀環境變數連 Google，會被擋
-  
-      // ✅ [新寫法] 改連我們自己的 API (後端代理)
-      // 這樣由伺服器幫你去跟 Google 拿菜單，瀏覽器就不會報錯了
-      const res = await fetch('/api/checkout?action=getProducts', { cache: 'no-store' });
-      const product = Array.isArray(data) 
-      const data = await res.json();
-      ? data.find((p: any) => p.id == id) 
-      : null;
+// 1. 先從 API 抓取資料
+const res = await fetch('/api/checkout?action=getProducts', { cache: 'no-store' });
+
+if (!res.ok) throw new Error('無法取得商品資料');
+
+// 2. 先將資料轉為 JSON (這時候 data 才被定義)
+const data = await res.json();
+
+// 3. 接著才進行「尋找產品」的邏輯 (只宣告一次 const product)
+const product = Array.isArray(data) 
+  ? data.find((p: any) => p.id == id) 
+  : null;
 
     if (!product) {
       return { title: '商品未找到 | 隔壁老王咖啡' }
