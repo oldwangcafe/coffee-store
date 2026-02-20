@@ -129,7 +129,7 @@ export default function Home() {
             rel="noopener noreferrer"
             className="w-full md:w-auto flex items-center justify-center gap-2 bg-stone-900 text-white px-8 py-3.5 rounded-2xl font-black hover:bg-stone-800 transition-all active:scale-95 shadow-lg shadow-stone-200"
           >
-            📜 另開視窗查看文字豆單
+            📜 咖啡豆清單
           </Link>
         </div>
 

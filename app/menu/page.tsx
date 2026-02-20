@@ -60,7 +60,7 @@ export default function MenuPage() {
       <div className="max-w-3xl mx-auto bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-stone-100">
         {/* 標題區 */}
         <div className="p-10 bg-stone-900 text-white text-center">
-          <h1 className="text-3xl md:text-4xl font-black mb-3 tracking-wide">老王精品文字豆單</h1>
+          <h1 className="text-3xl md:text-4xl font-black mb-3 tracking-wide">精品咖啡豆單</h1>
           <p className="text-xs text-stone-400 font-bold tracking-[0.3em] uppercase">Neighbor Old Wang Selection</p>
         </div>
 
