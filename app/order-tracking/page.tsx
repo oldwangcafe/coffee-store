@@ -134,7 +134,7 @@ export default function OrderTrackingPage() {
 
                     <div className="space-y-4">
                       <div>
-                        <p className="text-[10px] text-green-700 font-bold opacity-60 mb-1 uppercase">物流查詢代碼 (J 欄)</p>
+                        <p className="text-[10px] text-green-700 font-bold opacity-60 mb-1 uppercase">物流查詢代碼 </p>
                         <p className="text-3xl font-mono font-black text-stone-800 tracking-tighter">
                           {order.trackingNumber}
                         </p>
